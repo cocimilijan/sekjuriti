@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="sr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>X-zraci u bezbednosne svrhe</title>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;500;800&display=swap" rel="stylesheet">
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            inter: ['Inter', 'sans-serif']
+          },
+          colors: {
+            base: '#020617',
+            panel: '#0f172a',
+            accent: '#38bdf8'
+          }
+        }
+      }
+    }
+  </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const frame = document.querySelector('.xray-frame');
+  const scanLine = document.querySelector('.scan-line');
+  const metalItem = document.querySelector('.metal-item');
+  const alertBox = document.querySelector('.metal-alert');
+
+  const frameHeight = frame.offsetHeight;
+  const duration = 4000;
+  let start = null;
+
+  function step(timestamp) {
+    if (!start) start = timestamp;
+    const elapsed = timestamp - start;
+    const progress = (elapsed % duration) / duration;
+
+    const y = progress * frameHeight;
+    scanLine.style.top = y + 'px';
+
+    const metalTop = metalItem.offsetTop;
+    const metalBottom = metalTop + metalItem.offsetHeight;
+
+    if (y >= metalTop && y <= metalBottom) {
+      alertBox.style.opacity = '0.9';
+      alertBox.style.width = metalItem.offsetWidth + 'px';
+      alertBox.style.height = metalItem.offsetHeight + 'px';
+      alertBox.style.top = metalTop + 'px';
+      alertBox.style.left = metalItem.offsetLeft + 'px';
+    } else {
+      alertBox.style.opacity = '0';
+    }
+
+    requestAnimationFrame(step); // ✅ samo jednom
+  }
+
+  requestAnimationFrame(step);
+});
+</script>
+
+
+<style>
+html { scroll-behavior: smooth; }
+
+/* X-RAY SKENER */
+.xray-frame {
+  position: relative;
+  left: 50%;
+  transform: translate(-50%);
+  margin-bottom: 10px;
+  width: 380px;
+  height: 260px;
+  border: 2px solid rgba(56,189,248,0.45);
+  border-radius: 18px;
+  background: radial-gradient(circle at center, rgba(56,189,248,0.06), transparent);
+  box-shadow: 0 0 50px rgba(56,189,248,0.15);
+  overflow: hidden;
+}
+
+.scan-area {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  pointer-events: none;
+}
+
+.scan-line {
+  position: absolute;
+  top: -20%;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+  animation: scanMove 4s linear infinite;
+  filter: drop-shadow(0 0 10px #38bdf8);
+  z-index: 5;
+}
+
+.scan-glow {
+  position: absolute;
+  top: -20%;
+  width: 100%;
+  height: 160px;
+  background: radial-gradient(ellipse at center, rgba(56,189,248,0.25), transparent 70%);
+  animation: scanMove 4s linear infinite;
+  filter: blur(14px);
+  z-index: 4;
+}
+
+@keyframes scanMove {
+  0% { transform: translateY(0%); opacity: 0; }
+  10% { opacity: 1; }
+  90% { opacity: 1; }
+  100% { transform: translateY(140%); opacity: 0; }
+}
+
+.bag-outline {
+  position: absolute;
+  inset: 24px;
+  border: 2px dashed rgba(148,163,184,0.6);
+  border-radius: 14px;
+  z-index: 2;
+}
+
+.metal-item {
+  position: absolute;
+  width: 140px;
+  height: 80px;
+  top: 95px;
+  left: 120px;
+  z-index: 3;
+}
+
+.key-shape {
+  position: absolute;
+  top: 5px;
+  left: 85px;
+  width: 16px;
+  height: 40px;
+  border: 3px solid #38bdf8;
+  border-radius: 50% 50% 0 0;
+  box-shadow: 0 0 14px rgba(56,189,248,0.8);
+  z-index: 3;
+}
+
+.knife-shape {
+  position: absolute;
+  top: 20px;
+  left: 40px;
+  width: 60px;
+  height: 12px;
+  border: 3px solid #38bdf8;
+  border-radius: 2px;
+  box-shadow: 0 0 10px rgba(56,189,248,0.7);
+}
+
+.metal-item, .knife-shape, .key-shape {
+  animation: metalPulse 2.2s ease-in-out infinite;
+}
+
+@keyframes metalPulse {
+  0%, 100% { opacity: 0.65; }
+  50% { opacity: 1; }
+}
+.metal-alert {
+  position: absolute;
+  border: 2px solid #f87171;       /* crvena boja */
+  border-radius: 4px;
+  box-shadow: 0 0 12px rgba(248,113,113,0.6); /* jači sjaj */
+  opacity: 0;                      /* startuje nevidljivo */
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  pointer-events: none;
+  z-index: 6;
+}
+
+
+/* ORGANSKI PREDMETI */
+.organic-item {
+  position: absolute;
+  background: rgba(34,197,94,0.5);
+  border-radius: 6px;
+  box-shadow: 0 0 8px rgba(34,197,94,0.3);
+  z-index: 2;
+  animation: organicPulse 2.5s ease-in-out infinite;
+}
+
+.org1 { top: 160px; left: 50px; width: 80px; height: 40px; }
+.org2 { top: 40px; left: 30px; width: 50px; height: 30px; }
+.org3 { top: 60px; left: 180px; width: 70px; height: 35px; }
+.org4 { top: 150px; left: 220px; width: 60px; height: 50px; }
+.org5 { top: 30px; left: 270px; width: 40px; height: 25px; }
+
+@keyframes organicPulse {
+  0%,100% { opacity: 0.5; }
+  50% { opacity: 0.7; }
+}
+
+</style>
+</head>
+
+<body class="bg-base text-slate-200 font-inter">
+
+<header class="fixed w-full z-50 bg-base/80 backdrop-blur border-b border-white/10">
+  <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between">
+    <h1 class="font-extrabold text-accent">X-Zraci & Bezbednost</h1>
+    <nav class="space-x-6 text-sm">
+      <a href="#uvod" class="hover:text-accent">Uvod</a>
+      <a href="#skener" class="hover:text-accent">Skener</a>
+      <a href="#aerodrom" class="hover:text-accent">Aerodrom</a>
+      <a href="#policija" class="hover:text-accent">Policija</a>
+      <a href="#granica" class="hover:text-accent">Granica</a>
+      <a href="#ct-dual" class="hover:text-accent">CT & Dual-Energy</a>
+    </nav>
+  </div>
+</header>
+
+<section id="uvod" class="min-h-screen flex items-center justify-center text-center px-6 pt-32">
+  <div class="max-w-3xl">
+    <h2 class="text-6xl font-extrabold mb-6">
+      Korišćenje X-zraka u
+    </h2>
+    <h2 class="text-6xl font-extrabold mb-6">
+      <span class="text-accent">bezbedonosne svrhe</span>
+    </h2>
+    <p class="text-slate-400 text-lg leading-relaxed">
+      X-zraci omogućavaju pregled prtljaga i objekata, povećavajući efikasnost i sigurnost.
+    </p>
+  </div>
+</section>
+
+<section id="skener" class="py-40 bg-panel text-center">
+  <h3 class="text-5xl font-extrabold text-accent mb-10">Simulacija X-ray skenera</h3>
+
+
+<div class="xray-frame">
+  <div class="scan-area">
+    <div class="scan-line"></div>
+  </div>
+  <div class="bag-outline"></div>
+
+  <div class="metal-item">
+    <div class="metal-alert"></div>
+    <div class="knife-shape"></div>
+    <div class="key-shape"></div>
+  </div>
+
+  <div class="organic-item org1"></div>
+  <div class="organic-item org2"></div>
+  <div class="organic-item org3"></div>
+  <div class="organic-item org4"></div>
+  <div class="organic-item org5"></div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+  const frame = document.querySelector('.xray-frame');
+  const scanLine = frame.querySelector('.scan-line');
+  const metalItem = frame.querySelector('.metal-item');
+  const alertBox = metalItem.querySelector('.metal-alert');
+
+  const frameHeight = frame.offsetHeight;
+  const duration = 4000;
+  let start = null;
+
+  function animate(timestamp) {
+    if (!start) start = timestamp;
+    const elapsed = timestamp - start;
+    const progress = (elapsed % duration) / duration;
+
+    // Pomeri scan-line po Y
+    const y = progress * frameHeight;
+    scanLine.style.top = y + 'px';
+
+    // Koordinate metalnog predmeta
+    const metalTop = metalItem.offsetTop;
+    const metalBottom = metalTop + metalItem.offsetHeight;
+
+    if (y >= metalTop && y <= metalBottom) {
+      alertBox.style.opacity = '0.9';
+      alertBox.style.width = metalItem.offsetWidth + 'px';
+      alertBox.style.height = metalItem.offsetHeight + 'px';
+      alertBox.style.top = '0px';
+      alertBox.style.left = '0px';
+    } else {
+      alertBox.style.opacity = '0';
+    }
+
+    requestAnimationFrame(animate);
+  }
+
+  requestAnimationFrame(animate);
+});
+</script>
+
+<style>
+.scan-line {
+  position: absolute;
+  width: 100%;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, #38bdf8, transparent);
+  z-index: 5;
+}
+
+.metal-alert {
+  position: absolute;
+  border: 2px solid #f87171;
+  border-radius: 6px;
+  box-shadow: 0 0 12px rgba(248,113,113,0.6);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.2s ease;
+  z-index: 6;
+}
+</style>
+
+
+  <p class="max-w-3xl mx-auto text-slate-300 text-lg leading-relaxed">
+    Tokom skeniranja, metalni predmeti aktiviraju alarm, dok su organski predmeti označeni zelenom bojom.
+  </p>
+</section>
+<!-- AERODROM -->
+<section id="aerodrom" class="py-36 px-6">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+    <img class="rounded-xl shadow-lg"
+      src="https://image.made-in-china.com/2f0j00nFqaJgsKSLoH/Security-Products-X-Ray-Machine-Airport-X-ray-Baggage-Scanner-at-10080b-X-Ray-Machine.webp" />
+    <div>
+      <h3 class="text-4xl font-bold text-accent mb-4">Upotreba na aerodromima</h3>
+      <p class="text-slate-300 leading-relaxed text-lg">
+        Na aerodromima se koriste visoko sofisticirani X-ray sistemi za pregled ručnog i
+        registrovanog prtljaga. Operateri u realnom vremenu analiziraju slike i mogu brzo
+        identifikovati potencijalne pretnje poput oružja, eksploziva ili zabranjenih supstanci.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- POLICIJA -->
+<section id="policija" class="py-36 bg-panel px-6">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+    <div>
+      <h3 class="text-4xl font-bold text-accent mb-4">Policija i specijalne jedinice</h3>
+      <p class="text-slate-300 leading-relaxed text-lg">
+        Policijske i anti-terorističke jedinice koriste prenosive X-ray uređaje za
+        pregled sumnjivih paketa, vozila i objekata. Ovakav pregled omogućava bezbednu
+        procenu situacije bez direktnog izlaganja opasnosti.
+      </p>
+    </div>
+    <img class="rounded-xl shadow-lg"
+      src="https://pki-electronic.com/wp-content/uploads/2021/02/PKI-7445.jpg" />
+  </div>
+</section>
+
+<!-- GRANICA -->
+<section id="granica" class="py-36 px-6">
+  <div class="max-w-7xl mx-auto grid md:grid-cols-2 gap-16 items-center">
+    <img class="rounded-xl shadow-lg"
+      src="https://i.redd.it/these-are-x-rays-from-the-us-mexico-border-patrol-v0-wh6jl3qapza91.jpg?width=4032&format=pjpg&auto=webp&s=d0edb754ed90b6cb532cc1add6abb7b1ea7942b8" />
+    <div>
+      <h3 class="text-4xl font-bold text-accent mb-4">Granična i carinska kontrola</h3>
+      <p class="text-slate-300 leading-relaxed text-lg">
+        Na granicama se koriste snažni X-ray skeneri za pregled kamiona, kontejnera i vozila.
+        Ovi sistemi omogućavaju otkrivanje krijumčarene robe, ilegalnih supstanci i skrivenih
+        pregrada, čime značajno doprinose nacionalnoj bezbednosti.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- CT I DUAL-ENERGY -->
+<section id="ct-dual" class="py-36 bg-panel px-6">
+  <div class="max-w-7xl mx-auto space-y-28">
+
+    <!-- CT SKENER -->
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+      <div>
+        <h3 class="text-4xl font-bold text-accent mb-4">
+          CT skeneri u bezbednosnim sistemima
+        </h3>
+        <p class="text-slate-300 leading-relaxed text-lg">
+          CT (kompijuterizovana tomografija) skeneri koriste X-zrake za dobijanje
+          trodimenzionalnih prikaza sadržaja prtljaga i paketa. Za razliku od klasičnih
+          rendgenskih skenera, CT sistemi omogućavaju pregled objekata iz svih uglova,
+          čime se značajno povećava tačnost detekcije opasnih materijala.
+        </p>
+        <p class="text-slate-400 leading-relaxed text-lg mt-4">
+          Ovi sistemi se najčešće koriste na aerodromima najvišeg bezbednosnog nivoa,
+          jer omogućavaju automatsko prepoznavanje eksploziva i sumnjivih struktura
+          bez potrebe za ručnom proverom.
+        </p>
+      </div>
+
+      <img class="rounded-xl shadow-lg w-full aspect-ratio-auto"
+        src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSFaHFh9qUfCBKQfEeKXRAX08kojllK56BZkQ&s"
+        alt="CT skener za bezbednost">
+    </div>
+
+    <!-- DUAL ENERGY -->
+    <div class="grid md:grid-cols-2 gap-16 items-center">
+      <img class="rounded-xl shadow-lg w-full aspect-ratio-auto"
+        src="https://www.researchgate.net/publication/236169171/figure/fig2/AS:472848927072258@1489747377760/The-briefcase-dual-energy-image-with-special-color-scale.png"
+        alt="Dual-energy X-ray skener">
+
+      <div>
+        <h3 class="text-4xl font-bold text-accent mb-4">
+          Dual-energy X-ray tehnologija
+        </h3>
+        <p class="text-slate-300 leading-relaxed text-lg">
+          Dual-energy tehnologija koristi dve različite energije X-zraka kako bi se
+          precizno razlikovali materijali različite gustine i atomskog broja.
+          Na taj način sistemi mogu da razlikuju organske, neorganske i metalne
+          supstance.
+        </p>
+        <p class="text-slate-400 leading-relaxed text-lg mt-4">
+          Ova tehnologija je posebno važna za prepoznavanje eksploziva i opasnih
+          materijala koji se ne mogu lako uočiti klasičnim rendgenskim metodama,
+          čime se znatno povećava nivo bezbednosti.
+        </p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+
+<footer class="py-12 text-center text-slate-500">
+  Projekat iz fizike · Korišćenje X-zraka u bezbednosne svrhe
+</footer>
+
+
+</body>
+</html>
